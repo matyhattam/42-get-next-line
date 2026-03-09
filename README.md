@@ -62,9 +62,8 @@ cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 get_next_line.c get_next_line_utils.c
 You can tune `BUFFER_SIZE` to any value — the function must behave correctly regardless.
 
 ## Tests
-The project has been tested using this repo:
-
-https://github.com/Tripouille/gnlTester
+The project has been tested using:
+ - https://github.com/Tripouille/gnlTester
 
 ## Notes
 
