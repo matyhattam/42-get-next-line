@@ -17,6 +17,15 @@ char *create_nl(const char *leftover) {
   return (new_line);
 }
 
+char *guard_eof(char *leftover) {
+  if (leftover[0] == '\0') {
+    free(leftover);
+    leftover = NULL;
+    return (NULL);
+  }
+  return (leftover);
+}
+
 char *search_eol(int fd, char *buffer, char *leftover) {
   while (!ft_strchr(leftover, '\n')) {
     ssize_t bytes_read = read(fd, buffer, BUFFER_SIZE);
@@ -31,16 +40,28 @@ char *search_eol(int fd, char *buffer, char *leftover) {
     }
     free(tmp);
   }
+
+  leftover = guard_eof(leftover);
+  if (!leftover) {
+    return (NULL);
+  }
+
   return (leftover);
 }
 
-char *guard_eof(char *leftover) {
-  if (leftover[0] == '\0') {
+char *shift_and_free(char *leftover, char *next_line, char *buffer,
+                     size_t len) {
+  char *new_leftover = ft_strdup(&leftover[len]);
+  if (!new_leftover) {
     free(leftover);
-    leftover = NULL;
+    free(next_line);
+    free(buffer);
     return (NULL);
   }
-  return (leftover);
+
+  free(leftover);
+  free(buffer);
+  return (new_leftover);
 }
 
 char *get_next_line(int fd) {
@@ -61,30 +82,16 @@ char *get_next_line(int fd) {
     return (NULL);
   }
 
-  leftover = guard_eof(leftover);
-  if (!leftover) {
-    free(buffer);
-    return (NULL);
-  }
-
   char *next_line = create_nl(leftover);
-  if (!leftover) {
+  if (!next_line) {
     free(buffer);
     return (NULL);
   }
 
   size_t len = ft_strlen(next_line);
-  char *new_leftover = ft_strdup(&leftover[len]);
-  if (!new_leftover) {
-    free(leftover);
-    free(next_line);
-    free(buffer);
+  leftover = shift_and_free(leftover, next_line, buffer, len);
+  if (!leftover)
     return (NULL);
-  }
-
-  free(leftover);
-  leftover = new_leftover;
-  free(buffer);
 
   return (next_line);
 }
